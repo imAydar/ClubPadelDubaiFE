@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-const url = process.env.api_url?.replace('undefined', '');
+const url = 'https://clubpadeldubaibe-f5heg2ajhed7fqcv.uaenorth-01.azurewebsites.net/';
 const API_BASE_URL = `${url}/api/Events`.replace('undefined', '');
 
 export const useApi = () => {
