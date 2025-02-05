@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-const API_BASE_URL = process.env.api_url + "/api/Events";
+const API_BASE_URL = process.env.api_url?.replace('/undefined', '') + '/api/Events';
 
 export const useApi = () => {
   const events = ref([]);
