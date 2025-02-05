@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   vite: {
     server: {
-      allowedHosts: ['.ngrok-free.app'], // Allows any ngrok subdomain
+      allowedHosts: ['.ngrok-free.app', '.azurestaticapps.net/'], // Allows any ngrok subdomain
     }
   },  
   app: {
