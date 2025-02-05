@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 const url = process.env.api_url?.replace('undefined', '');
-const API_BASE_URL = `${url}/api/Events`;
+const API_BASE_URL = `${url}/api/Events`.replace('undefined', '');
 
 export const useApi = () => {
   const events = ref([]);
@@ -31,7 +31,7 @@ export const useApi = () => {
   const fetchEvents = async () => {
     try {
       console.log("Fetching events from:", API_BASE_URL); // Debugging
-      const response = await fetch(API_BASE_URL);
+      const response = await fetch(API_BASE_URL.replace('undefined', ''));
       console.log("Response status:", response.status); // Debugging
   
       if (!response.ok) {
