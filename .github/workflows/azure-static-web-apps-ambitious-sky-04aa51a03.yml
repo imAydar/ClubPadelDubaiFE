@@ -49,6 +49,8 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: ".output/public" # Nuxt.js generates static files here
           github_id_token: ${{ steps.idtoken.outputs.result }}
+      - name: check output folder
+        run: ls -R .output/public
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
