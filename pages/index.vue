@@ -110,6 +110,7 @@ const handleCreateEvent = async () => {
   max-width: 600px;
   width: 100%;
   transition: all 0.3s;
+  color:white;
 }
 
 .card:hover {

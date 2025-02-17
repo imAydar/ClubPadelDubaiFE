@@ -15,6 +15,15 @@ const userName = ref(initDataUnsafe?.user?.username || '');
 const isLoading = ref(false);
 const errorMessage = ref('');
 
+const fetchEvent = async () => {
+  try {
+    event.value = await getEventById(eventId.value);
+  } catch (error) {
+    errorMessage.value = 'Failed to load event details.';
+    console.error(error);
+  }
+};
+
 // Fetch event details
 onMounted(async () => {
   try {
@@ -38,6 +47,7 @@ const registerParticipant = async () => {
   try {
     event.value = await registerForEvent(eventId.value, userName.value);
     showAlert('Registration successful!');
+    fetchEvent();
   } catch (error) {
     errorMessage.value = error.message || 'Failed to register.';
     console.error('Error registering:', error);
@@ -50,6 +60,7 @@ const registerParticipant = async () => {
 const handleConfirm = async (participantId, confirm) => {
   try {
     event.value = await confirmParticipation(eventId.value, participantId, confirm);
+    fetchEvent();
   } catch (error) {
     errorMessage.value = error.message || 'Failed to confirm participation.';
     console.error('Error confirming participation:', error);
@@ -60,6 +71,7 @@ const handleConfirm = async (participantId, confirm) => {
 const handleRemove = async (participantId) => {
   try {
     event.value = await removeParticipant(eventId.value, participantId);
+    fetchEvent();
   } catch (error) {
     errorMessage.value = error.message || 'Failed to remove participant.';
     console.error('Error removing participant:', error);
