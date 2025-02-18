@@ -2,9 +2,12 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useApi } from "~/composables/useApi";
+import { useMiniApp } from 'vue-tg';
 
-const { events, fetchEvents, createEvent } = useApi();
+const { initData } = useMiniApp();
+const { events, fetchEvents, createEvent, auth } = useApi();
 const router = useRouter();
+const hash = ref(initData?.hash);
 
 // Form data for creating a new event
 const newEvent = ref({
@@ -21,9 +24,11 @@ onMounted(async () => {
   console.log("Fetching events..."); // Debugging
   await fetchEvents();
   console.log("Events fetched:", events.value); // Debugging
+  await auth(initData);
 });
 
 const goToEvent = (eventId) => {
+  console.log(hash);
   router.push(`/event/${eventId}`);
 };
 

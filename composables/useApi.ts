@@ -167,5 +167,33 @@ export const useApi = () => {
         throw error; // Re-throw the error for handling in the component
       }
     };
-  return { events, fetchEvents, getEventById, registerForEvent, createEvent, confirmParticipation, removeParticipant };
+
+    const auth = async(initData) => {
+        if (!initData || !initData.user) {
+          console.error("No Telegram user data found!");
+        } else {
+          console.log("Telegram User Data:", initData);
+      
+          fetch("/api/auth/telegram", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  user: initData.user,
+                  auth_date: initData.auth_date,
+                  hash: initData.hash
+              })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.token) {
+                  localStorage.setItem("token", data.token);  // ✅ Store JWT securely
+                  console.log("Authentication successful! Token received.");
+              } else {
+                  console.error("Authentication failed!");
+              }
+          })
+          .catch(error => console.error("Error during authentication:", error));
+      }
+    }
+  return { events, fetchEvents, getEventById, registerForEvent, createEvent, confirmParticipation, removeParticipant, auth };
 };

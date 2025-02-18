@@ -14,6 +14,7 @@ const event = ref(null);
 const userName = ref(initDataUnsafe?.user?.username || '');
 const isLoading = ref(false);
 const errorMessage = ref('');
+const hash = ref(initDataUnsafe?.hash);
 
 const fetchEvent = async () => {
   try {
@@ -125,8 +126,8 @@ const handleRemove = async (participantId) => {
       </div>
 
       <!-- Waitlist -->
-      <div class="waitlist" v-if="event.waitlist.length > 0">
-        <h2>Waiting List ({{ event.waitlist.length }})</h2>
+      <div class="waitlist" v-if="event.waitlist?.length > 0">
+        <h2>Waiting List ({{ event.waitlist?.length }})</h2>
         <ul>
           <li v-for="participant in event.waitlist" :key="participant.id">
             <span>{{ participant.userName }}</span>
