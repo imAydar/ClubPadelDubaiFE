@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
-const url = 'https://clubpadeldubaibe-f5heg2ajhed7fqcv.uaenorth-01.azurewebsites.net';
-const API_BASE_URL = `${url}/api/Events`.replace('undefined', '');
+const url = 'https://0e29-94-204-215-144.ngrok-free.app';
+const API_BASE_URL = `${url}/api/Events`;
 
 export const useApi = () => {
   const events = ref([]);
@@ -30,24 +30,29 @@ export const useApi = () => {
 
   const fetchEvents = async () => {
     try {
+      alert("Fetching events from:" + API_BASE_URL);
       console.log("Fetching events from:", API_BASE_URL); // Debugging
-      const response = await fetch(API_BASE_URL.replace('undefined', ''));
+      const response = await fetch(API_BASE_URL);
+      alert("Response status:" + response.status);
       console.log("Response status:", response.status); // Debugging
-  
+      alert(await response.text());
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.statusText}`);
       }
   
       const data = await response.json();
-      console.log("Fetched data:", data); // Debugging
-  
+      alert("Fetched data:" + data);
+      console.log("Fetched data:", ); // Debugging
+      
       if (!Array.isArray(data)) {
+        alert("Invalid API response (expected an array)");
         throw new Error("Invalid API response (expected an array)");
       }
   
       events.value = data;
     } catch (error) {
       console.error("Error fetching events:", error);
+      alert("err1 " + error.message + JSON.stringify(error));
       events.value = [];
     }
   };
