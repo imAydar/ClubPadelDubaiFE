@@ -30,29 +30,29 @@ export const useApi = () => {
 
   const fetchEvents = async () => {
     try {
-      alert("Fetching events from:" + API_BASE_URL);
-      console.log("Fetching events from:", API_BASE_URL); // Debugging
-      const response = await fetch(API_BASE_URL);
-      alert("Response status:" + response.status);
-      console.log("Response status:", response.status); // Debugging
-      alert(await response.text());
+      console.log("Fetching events from:", API_BASE_URL);
+      const response = await fetch(API_BASE_URL, {
+        method:  "GET",
+        headers: new Headers({
+          "ngrok-skip-browser-warning": "69420",
+        })
+      });
+      console.log("Response status:", response.status); 
+      //TODO: Replace with json() method.
+      const dataText = await response.text();
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.statusText}`);
       }
-  
-      const data = await response.json();
-      alert("Fetched data:" + data);
-      console.log("Fetched data:", ); // Debugging
+      const data = JSON.parse(dataText);
+      console.log("Fetched data:", ); 
       
       if (!Array.isArray(data)) {
-        alert("Invalid API response (expected an array)");
         throw new Error("Invalid API response (expected an array)");
       }
   
       events.value = data;
     } catch (error) {
       console.error("Error fetching events:", error);
-      alert("err1 " + error.message + JSON.stringify(error));
       events.value = [];
     }
   };
