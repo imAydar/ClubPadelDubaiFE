@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-const url = 'https://0e29-94-204-215-144.ngrok-free.app';
+const url = 'https://clubpadeldubaibe-f5heg2ajhed7fqcv.uaenorth-01.azurewebsites.net';
 const API_BASE_URL = `${url}/api/Events`;
 
 export const useApi = () => {
