@@ -8,6 +8,7 @@ const { initData } = useMiniApp();
 const { events, fetchEvents, createEvent, auth } = useApi();
 const router = useRouter();
 const hash = ref(initData?.hash);
+const userRole = ref('')
 
 // Form data for creating a new event
 const newEvent = ref({
@@ -21,10 +22,12 @@ const isLoading = ref(false);
 const errorMessage = ref("");
 
 onMounted(async () => {
+  localStorage.setItem("userRole", "admin");
   console.log("Fetching events..."); // Debugging
   await fetchEvents();
   console.log("Events fetched:", events.value); // Debugging
   await auth(initData);
+  userRole.value = localStorage.getItem('userRole') || 'user'
 });
 
 const goToEvent = (eventId) => {
@@ -58,15 +61,24 @@ const handleCreateEvent = async () => {
     isLoading.value = false;
   }
 };
+
+const goToAdmin = () => {
+  router.push('/admin')
+}
 </script>
 
 <template>
   <div class="container">
     <div class="card">
       <h1>Padel Events</h1>
+            <!-- Add this button where appropriate in your layout -->
+      <button v-if="userRole === 'admin'" @click="goToAdmin" class="admin-button">
+        Admin Dashboard
+      </button>
+
+<!--
       <p>Create or join an event.</p>
 
-      <!-- Create Event Form -->
       <div class="create-event-form">
         <h2>Create New Event</h2>
         <input v-model="newEvent.name" class="input-field" placeholder="Event Name" />
@@ -78,7 +90,7 @@ const handleCreateEvent = async () => {
         </button>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
-
+-->
       <!-- Events List -->
       <div class="events-list">
         <h2>Upcoming Events</h2>
@@ -173,5 +185,23 @@ const handleCreateEvent = async () => {
 
 .event-item:hover {
   background: #21262d;
+}
+
+.admin-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #58a6ff, #1f6feb);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  margin-top: 20px;
+}
+
+.admin-button:hover {
+  background: linear-gradient(135deg, #1f6feb, #58a6ff);
+  transform: scale(1.05);
 }
 </style>
