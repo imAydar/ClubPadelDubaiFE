@@ -12,17 +12,26 @@ const errorMessage = ref('')
 const { events, fetchEvents, createEvent, auth } = useApi();
 
 const newEvent = ref({
-  name: '',
-  date: '',
-  time: '',
-  location: '',
-  price: 0,
-  level: 'Beginner',
-  duration: '01:00',
+  name: 'Padel Session',
+  date: new Date().toISOString().split('T')[0],
+  time: '18:00',
+  location: 'Dubai Padel Hub',
+  price: 100,
+  level: 'Intermediate',
+  duration: '01:30',
   sendAt: '',
   isOnHold: false,
-  maxParticipants: 4
+  maxParticipants: 4,
+  participants: []
 })
+
+const participantInput = ref({
+  userName: '',
+  confirmed: false,
+  isOnWaitList: false
+})
+
+const playerInput = ref('')
 
 const levelOptions = [
   'Beginner',
@@ -50,20 +59,13 @@ const handleCreateEvent = async () => {
   
   try {
     const eventData = {
-      name: newEvent.value.name,
-      date: newEvent.value.date,
-      time: newEvent.value.time,
-      location: newEvent.value.location,
+      ...newEvent.value,
       price: parseFloat(newEvent.value.price),
-      level: newEvent.value.level,
-      duration: newEvent.value.duration,
+      maxParticipants: parseInt(newEvent.value.maxParticipants),
       sendAt: newEvent.value.sendAt || null,
-      isOnHold: newEvent.value.isOnHold,
-      maxParticipants: parseInt(newEvent.value.maxParticipants)
     }
 
-    await createEvent(eventData);
-
+    await createEvent(eventData)
     await fetchEvents()
     resetForm()
   } catch (error) {
@@ -107,25 +109,39 @@ const validateEventForm = () => {
   if (!newEvent.value.location?.trim()) {
     errorMessage.value = 'Location is required'
     return false
+  }/*  if (newEvent.value.participants.length > newEvent.value.maxParticipants) {
+    errorMessage.value = `Cannot add more than ${newEvent.value.maxParticipants} participants`
+    return false
   }
+  if (newEvent.value.participants.length > 16) {
+    errorMessage.value = 'Cannot add more than 16 participants'
+    return false
+  }*/
   return true
 }
 
 // Reset form
 const resetForm = () => {
   newEvent.value = {
-    name: '',
-    date: '',
-    time: '',
-    location: '',
-    price: 0,
-    level: 'Beginner',
-    duration: '01:00',
+    name: 'Padel Session',
+    date: new Date().toISOString().split('T')[0],
+    time: '18:00',
+    location: 'Dubai Padel Hub',
+    price: 100,
+    level: 'Intermediate',
+    duration: '01:30',
     sendAt: '',
     isOnHold: false,
-    maxParticipants: 4
+    maxParticipants: 4,
+    participants: []
   }
   errorMessage.value = ''
+  participantInput.value = {
+    userName: '',
+    confirmed: false,
+    isOnWaitList: false
+  }
+  playerInput.value = ''
 }
 
 const goBack = () => {
@@ -134,6 +150,38 @@ const goBack = () => {
 
 const editEvent = (id) => {
   router.push(`/edit-event/${id}`)
+}
+
+const addParticipant = () => {
+  const userName = participantInput.value.userName.trim()
+  if (!userName) return
+  
+  // Check if participant already exists
+  const exists = newEvent.value.participants.some(p => p.userName === userName)
+  if (exists) {
+    errorMessage.value = 'Participant already added'
+    return
+  }
+
+  // Add new participant
+  const participant = {
+    userName,
+    confirmed: participantInput.value.confirmed,
+    isOnWaitList: newEvent.value.participants.length >= newEvent.value.maxParticipants,
+    createdAt: new Date().toISOString(),
+    name: userName
+  }
+
+  newEvent.value.participants.push(participant)
+  participantInput.value.userName = '' // Reset input
+}
+
+const removeParticipant = (index) => {
+  newEvent.value.participants.splice(index, 1)
+  // Recalculate waitlist status for remaining participants
+  newEvent.value.participants.forEach((p, i) => {
+    p.isOnWaitList = i >= newEvent.value.maxParticipants
+  })
 }
 </script>
 
@@ -224,14 +272,12 @@ const editEvent = (id) => {
           />
         </div>
 
-        <div class="form-row checkbox-row">
-          <label class="checkbox-label">
-            <input 
-              type="checkbox" 
-              v-model="newEvent.isOnHold"
-            />
-            Put event on hold
-          </label>
+        <div class="form-row">
+          <label>Put event on hold</label>
+          <input 
+            type="checkbox" 
+            v-model="newEvent.isOnHold"
+          />
         </div>
 
         <div class="form-row">
@@ -243,6 +289,58 @@ const editEvent = (id) => {
             min="2"
             max="16"
           />
+        </div>
+
+        <div class="form-row">
+          <label>Add Participant</label>
+          <div class="participant-input-container">
+            <input 
+              v-model="participantInput.userName" 
+              class="input-field" 
+              placeholder="Enter participant username"
+            />
+            <label class="checkbox-label inline-checkbox">
+              <input 
+                type="checkbox" 
+                v-model="participantInput.confirmed"
+              />
+              Confirmed
+            </label>
+            <button 
+              @click="addParticipant" 
+              class="add-player-button"
+              :disabled="!participantInput.userName.trim()"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row" v-if="newEvent.participants.length > 0">
+          <label>Participants</label>
+          <div class="participants-list">
+            <div 
+              v-for="(participant, index) in newEvent.participants" 
+              :key="index" 
+              :class="['participant-tag', {
+                'waitlist': participant.isOnWaitList,
+                'confirmed': participant.confirmed
+              }]"
+            >
+              <span class="participant-info">
+                {{ participant.userName }}
+                <span class="participant-status">
+                  {{ participant.isOnWaitList ? '(Waitlist)' : participant.confirmed ? '(Confirmed)' : '(Pending)' }}
+                </span>
+              </span>
+              <button 
+                @click="removeParticipant(index)" 
+                class="remove-player-button"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="form-row">
@@ -293,6 +391,21 @@ const editEvent = (id) => {
             <p><span class="icon">⏱️</span> Duration: {{ event.duration }}</p>
             <p><span class="icon">👥</span> Max Participants: {{ event.maxParticipants }}</p>
             <p v-if="event.isOnHold" class="on-hold"><span class="icon">⏸️</span> On Hold</p>
+            <div v-if="event.participants?.length > 0" class="participant-section">
+              <p><span class="icon">👥</span> Participants:</p>
+              <div class="event-participants">
+                <div 
+                  v-for="participant in event.participants" 
+                  :key="participant.id" 
+                  class="event-participant"
+                >
+                  {{ participant.userName }}
+                  <span class="participant-status">
+                    {{ participant.isOnWaitList ? '(Waitlist)' : participant.confirmed ? '(Confirmed)' : '(Pending)' }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -535,5 +648,133 @@ select.input-field {
   .form-row label {
     text-align: left;
   }
+}
+
+.player-input-container {
+  display: flex;
+  gap: 8px;
+}
+
+.add-player-button {
+  padding: 8px 16px;
+  background: #238636;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.add-player-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: #21262d;
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+.player-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #30363d;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.remove-player-button {
+  background: none;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.remove-player-button:hover {
+  color: #f85149;
+}
+
+.participant-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-checkbox {
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: #21262d;
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+.participant-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #30363d;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.participant-tag.waitlist {
+  border: 1px solid #f85149;
+}
+
+.participant-tag.confirmed {
+  border: 1px solid #238636;
+}
+
+.participant-info {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.participant-status {
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
+.participant-section {
+  margin-top: 12px;
+}
+
+.event-participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: #21262d;
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+.event-participant {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #30363d;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 </style> 
