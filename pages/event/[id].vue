@@ -97,7 +97,7 @@ const handleRemove = async (participantId) => {
 
       <!-- Participants -->
       <div class="participants">
-        <h2>Participants ({{ event.participants.length }}/5)</h2>
+        <h2>Participants ({{ event.participants.length }}/{{event.maxParticipants}})</h2>
         <ul>
           <li v-for="participant in event.participants" :key="participant.id">
             <span class="player-info">
