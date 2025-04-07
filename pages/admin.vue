@@ -272,7 +272,7 @@ const removeParticipant = (index) => {
           />
         </div>
 
-        <div class="form-row">
+        <div class="form-row oneLine">
           <label>Put event on hold</label>
           <input 
             type="checkbox" 
@@ -416,7 +416,7 @@ const removeParticipant = (index) => {
 <style scoped>
 .container {
   min-height: 100vh;
-  padding: 20px;
+ /* padding: 20px;*/
   background: #0d1117;
   display: flex;
   justify-content: center;
@@ -481,7 +481,7 @@ const removeParticipant = (index) => {
 }
 
 .input-field {
-  width: 100%;
+  /*width: 100%;*/
   padding: 8px 12px;
   background: #21262d;
   border: 1px solid #30363d;
@@ -648,6 +648,10 @@ select.input-field {
   .form-row label {
     text-align: left;
   }
+
+  .oneLine {
+    display: flex;
+  }
 }
 
 .player-input-container {
@@ -705,7 +709,7 @@ select.input-field {
 }
 
 .participant-input-container {
-  display: flex;
+ /* display: flex;*/
   gap: 8px;
   align-items: center;
 }
