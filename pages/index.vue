@@ -26,6 +26,8 @@ onMounted(async () => {
   localStorage.setItem("userRole", "admin");
   console.log("Fetching events..."); // Debugging
   await fetchEvents();
+  console.log("InitData");
+  console.log(initData);
   console.log("Events fetched:", events.value); // Debugging
   await auth(initData);
   userRole.value = localStorage.getItem('userRole') || 'user'
