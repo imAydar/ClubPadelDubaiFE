@@ -191,7 +191,7 @@ export const useApi = () => {
           .then(response => response.json())
           .then(data => {
               if (data.token) {
-                  localStorage.setItem("token", data.token);  // ✅ Store JWT securely
+                  localStorage.setItem("jwt", data.token);
                   console.log("Authentication successful! Token received.");
               } else {
                   console.error("Authentication failed!");

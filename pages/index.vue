@@ -2,15 +2,16 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useApi } from "~/composables/useApi";
+import { useUserRole } from '~/composables/useUserRole'
 import { useMiniApp } from 'vue-tg';
 
-const { initData } = useMiniApp();
-const { events, fetchEvents, createEvent, auth } = useApi();
-const router = useRouter();
-const hash = ref(initData?.hash);
+const { initData } = useMiniApp()
+const { events, fetchEvents, createEvent, auth } = useApi()
+const { isAdmin } = useUserRole()
+const router = useRouter()
+const hash = ref(initData?.hash)
 const userRole = ref('')
 
-// Form data for creating a new event
 const newEvent = ref({
   name: "",
   date: "",

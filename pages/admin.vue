@@ -2,10 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useApi } from '~/composables/useApi'
+import { useUserRole } from '~/composables/useUserRole'
 
 const router = useRouter()
 const api = useApi()
-//const events = ref([])
+const { isAdmin } = useUserRole()
 const isLoading = ref(false)
 const errorMessage = ref('')
 
@@ -41,13 +42,11 @@ const levelOptions = [
 ]
 
 // Authentication check and fetch events
-onMounted(async () => {
-  const userRole = localStorage.getItem('userRole')
-  if (userRole !== 'admin') {
+onMounted(() => {
+  if (!isAdmin.value) {
     router.push('/')
-    return
   }
-  await fetchEvents()
+  fetchEvents()
 })
 
 // Create new event
